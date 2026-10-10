@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Engine systems Muhammad Fauzan built for Hollows, a C++ horror game: audio, collision, cloud saves, gamepad and tools.">
+<title>Hollows Engine Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column on cold concrete, sodium-lamp amber for the single accent; case-study sections read top to bottom. Deliberately dark: the game is set in a shut-down prison at night. */
+html{-webkit-text-size-adjust:100%}
+:root{
+  --bg:#121518; --panel:#191d21; --line:#2a3036; --fg:#e4e7ea; --muted:#9aa3ab; --accent:#e3a53c; --accent-ink:#1a1306;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+img,video{max-width:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;margin:0}
+.wrap{max-width:760px;margin:0 auto;padding-inline:20px;padding-block:48px 72px}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:clamp(3rem,10vw,5.2rem);line-height:.95;text-transform:uppercase}
+h2{font-size:1.9rem;line-height:1.1;margin-top:64px;margin-bottom:14px}
+h3{font-size:1.25rem;margin-bottom:6px}
+p{margin:0 0 14px;max-width:65ch}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:1.2rem;color:var(--fg);margin-top:18px;max-width:34ch;line-height:1.45}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.meta span{white-space:nowrap}
+.wave{display:block;width:100%;height:56px;margin:34px 0 0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:30px}
+.facts div{background:var(--panel);padding:14px 16px}
+.facts b{display:block;font-family:var(--display);font-size:1.7rem;font-weight:600;font-variant-numeric:tabular-nums;color:var(--fg)}
+.facts small{color:var(--muted);font-size:.82rem;line-height:1.35;display:block}
+.owned{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px 28px;margin-top:8px}
+.owned h3{color:var(--fg)}
+.owned p{color:var(--muted);font-size:.95rem;margin:0}
+.case{border-left:2px solid var(--accent);padding-left:20px;margin-top:8px}
+.steps{display:grid;gap:18px;margin-top:18px}
+.step{display:grid;grid-template-columns:120px 1fr;gap:4px 18px}
+.step dt{font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding-top:3px}
+.step dd{margin:0;min-width:0}
+code{font-family:var(--mono);font-size:.88em;background:var(--panel);border:1px solid var(--line);padding:1px 5px;border-radius:3px}
+figure{margin:22px 0 0}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+figcaption{font-size:.85rem;color:var(--muted);margin-top:8px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;font-family:var(--mono);font-size:.82rem}
+.flow span{border:1px solid var(--line);background:var(--panel);padding:6px 10px}
+.flow i{color:var(--muted);font-style:normal}
+ul.plain{padding-left:1.1em;margin:0 0 14px}
+ul.plain li{margin-bottom:6px;max-width:65ch}
+.timeline{list-style:none;padding:0;margin:12px 0 0;border-top:1px solid var(--line)}
+.timeline li{display:grid;grid-template-columns:96px 1fr;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+.timeline time{font-family:var(--mono);font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:2px}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 24px;margin-top:10px;font-size:.95rem}
+.team b{color:var(--fg);font-weight:600}
+.team span{color:var(--muted)}
+.note{margin-top:64px;padding:18px 20px;background:var(--panel);border:1px solid var(--line)}
+.note p{margin:0 0 8px;color:var(--muted)}
+.note p:last-child{margin:0}
+.addr{font-family:var(--mono);color:var(--fg);user-select:all}
+.film{margin:30px 0 0;background:#000;border:1px solid var(--line)}
+.film video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#000}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:22px}
+.shots figure{margin:0;min-width:0}
+.shot img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--line)}
+@media (max-width:520px){.step,.timeline li{grid-template-columns:1fr}.step dt{padding-top:0}}
+@media (prefers-reduced-motion:no-preference){.wave path{stroke-dasharray:1400;stroke-dashoffset:0;animation:draw 2.4s ease-out 1}@keyframes draw{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="eyebrow">Project case study · Muhammad Fauzan bin Mohamed Fauzy</div>
+  <h1>Hollows</h1>
+  <p class="lede">Engine systems for a 2D horror game where the monsters hunt by sound.</p>
+  <div class="meta">
+    <span>Product Manager &amp; programmer</span>
+    <span>Audio, physics &amp; collision lead</span>
+    <span>Sep 2025 – Apr 2026</span>
+    <span>DigiPen Singapore</span>
+  </div>
+
+  <svg class="wave" viewBox="0 0 700 56" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 28 H210 L222 10 L234 46 L246 18 L258 38 L270 26 L282 30 H700" fill="none" stroke="#e3a53c" stroke-width="2"/>
+  </svg>
+
+  <div class="facts" aria-label="Project facts">
+    <div><b>C++20</b><small>custom 2D engine, built from scratch</small></div>
+    <div><b>5</b><small>programmers in the core team</small></div>
+    <div><b>172 / 589</b><small>commits that are mine</small></div>
+    <div><b>8 months</b><small>two trimesters, one shipped game</small></div>
+  </div>
+
+  <figure class="film">
+    <video controls preload="metadata" playsinline poster="media/trailer_poster.jpg">
+      <source src="media/hollows_trailer_720p.mp4" type="video/mp4">
+    </video>
+  </figure>
+  <figcaption>Hollows trailer, made by the team. 1 minute, with sound.</figcaption>
+
+  <h2>The game</h2>
+  <p>You are an investigator trapped in a closed prison where sound experiments turned the inmates into creatures that hunt by sound. Sprinting, stepping on broken tiles and using your flashlight all make noise. One sound at the wrong time and the Listeners find you.</p>
+  <p>That design made audio a gameplay system, not polish. If a footstep clicked when it shouldn't, or a monster growl came from the wrong side, the game stopped working.</p>
+
+  <h2>What I built</h2>
+  <div class="owned">
+    <div><h3>Audio engine and mixer</h3><p>FMOD integration, mixer buses for music, effects, ambience and UI, crossfades between scenes, 3D-positioned monster sounds, high-pass and reverb in the chase, all driven by JSON.</p></div>
+    <div><h3>Physics and collision</h3><p>Axis-aligned box and circle collision with resolution, plus a uniform-grid broad phase so objects only test against their neighbours.</p></div>
+    <div><h3>Save and cloud save</h3><p>Two local save slots, then account sign-up, login and cloud sync of those slots through Supabase’s REST API over HTTPS.</p></div>
+    <div><h3>Gamepad support</h3><p>Rebindable controls with unit tests, controller navigation for every menu, button prompts that switch with the device, and disconnect handling.</p></div>
+    <div><h3>Editor tools</h3><p>ImGui panels for the audio mixer, cutscenes, gamepad bindings and build size, so designers could tune without touching code.</p></div>
+    <div><h3>Cutscenes and release</h3><p>MPEG video playback for cutscenes and the menu background, fog effects, a splash screen, and a build with zero compiler warnings.</p></div>
+  </div>
+  <div class="shots">
+    <figure class="shot"><img src="media/settings_mixer.jpg" alt="Settings menu with Main, Music, SFX and UI volume sliders" loading="lazy"><figcaption>The volume sliders map straight onto the mixer buses I built: Main, Music, SFX and UI.</figcaption></figure>
+    <figure class="shot"><img src="media/hide_prompt.jpg" alt="Player in a dark corridor with a Q to collect prompt" loading="lazy"><figcaption>On-screen button prompts come from the input prompt system I wrote for keyboard and controller.</figcaption></figure>
+  </div>
+
+  <h2>The popping problem</h2>
+  <div class="case">
+    <dl class="steps">
+      <div class="step"><dt>Problem</dt><dd>Sounds clicked. Stopping a footstep loop, cutting to the jumpscare, dragging a volume slider and muffling sound when a monster came near all produced an audible pop.</dd></div>
+      <div class="step"><dt>Constraint</dt><dd>In a game about listening, every stray click reads as a noise you made. The fix had to hold at any frame rate and through scene changes.</dd></div>
+      <div class="step"><dt>What failed</dt><dd>Fading volume a little each frame still left steps you could hear, and removing and re-adding the low-pass filter on a live channel popped every time.</dd></div>
+      <div class="step"><dt>What I changed</dt><dd>
+        <ul class="plain">
+          <li>Stops became sample-accurate 140 ms fades scheduled on FMOD’s audio clock, with the channel set to stop itself when the fade ends.</li>
+          <li>Volume ramping turned on for every channel, so slider jumps are smoothed by the mixer itself.</li>
+          <li>The muffle filter is created once and its cutoff updated in place, using FMOD’s stable simple low-pass instead of the deprecated one.</li>
+          <li>Game events pause while the inventory is open, so sounds can’t fire half-started.</li>
+        </ul>
+      </dd></div>
+      <div class="step"><dt>Result</dt><dd>The clicks went away at the jumpscare, when walking stops and on the menus, and scene changes fade out cleanly.</dd></div>
+    </dl>
+  </div>
+  <figure class="shot"><img src="media/chase.jpg" alt="Red-tinted chase scene with a monster closing in" loading="lazy"><figcaption>The chase: the screen tints red, and the audio adds high-pass, reverb and a muffle as the monster closes in.</figcaption></figure>
+
+  <h2>Collision with a uniform grid</h2>
+  <p>Checking every object against every other grows with the square of the object count. The broad phase drops each object into 128-pixel grid cells by its bounding box, then only tests objects that share a cell. The exact box and circle tests run on that short list.</p>
+  <figure>
+    <svg viewBox="0 0 640 240" role="img" aria-label="Only objects in the same or overlapping cells are tested">
+      <rect x="0" y="0" width="640" height="240" fill="#191d21"/>
+      <g stroke="#2a3036" stroke-width="1">
+        <line x1="128" y1="0" x2="128" y2="240"/><line x1="256" y1="0" x2="256" y2="240"/><line x1="384" y1="0" x2="384" y2="240"/><line x1="512" y1="0" x2="512" y2="240"/>
+        <line x1="0" y1="120" x2="640" y2="120"/>
+      </g>
+      <rect x="256" y="0" width="128" height="120" fill="#e3a53c" fill-opacity="0.12"/>
+      <rect x="290" y="40" width="34" height="34" fill="#e3a53c"/>
+      <circle cx="352" cy="88" r="16" fill="none" stroke="#e3a53c" stroke-width="2"/>
+      <rect x="60" y="160" width="30" height="30" fill="none" stroke="#9aa3ab" stroke-width="1.5"/>
+      <circle cx="560" cy="60" r="14" fill="none" stroke="#9aa3ab" stroke-width="1.5"/>
+      <rect x="430" y="170" width="40" height="22" fill="none" stroke="#9aa3ab" stroke-width="1.5"/>
+      <text x="268" y="112" fill="#e4e7ea" font-family="IBM Plex Mono, monospace" font-size="12">tested</text>
+      <text x="40" y="215" fill="#9aa3ab" font-family="IBM Plex Mono, monospace" font-size="12">skipped</text>
+      <text x="520" y="100" fill="#9aa3ab" font-family="IBM Plex Mono, monospace" font-size="12">skipped</text>
+    </svg>
+    <figcaption>The player (solid) is only tested against the circle in its cell. Objects in other cells are never checked.</figcaption>
+  </figure>
+
+  <h2>Cloud saves without a game server</h2>
+  <p>Players can sign up and keep their two save slots online. I used Supabase for accounts and storage and talked to it directly from C++ with Windows’ WinHTTP, so the team didn’t have to run a server.</p>
+  <div class="flow" aria-label="Cloud save flow">
+    <span>Sign up / log in</span><i>→</i><span>access token</span><i>→</i><span>upload slot (upsert)</span><i>→</i><span>list · download · delete</span>
+  </div>
+  <p style="margin-top:14px">Each upload is keyed on the player and slot number, so saving again replaces that slot instead of creating duplicates.</p>
+  <figure class="shot"><img src="media/cloud_login.jpg" alt="Cloud Account sign-in panel on the main menu" loading="lazy"><figcaption>The Cloud Account panel on the main menu, using a test account.</figcaption></figure>
+
+  <h2>How it came together</h2>
+  <ol class="timeline">
+    <li><time>Sep 2025</time><span>Added FMOD and the first audio system to the engine.</span></li>
+    <li><time>Oct 2025</time><span>Box and circle collision in the physics system.</span></li>
+    <li><time>Nov 2025</time><span>Audio saved and loaded from JSON, with error handling and drag-and-drop in the editor.</span></li>
+    <li><time>Jan 2026</time><span>Audio mixer and cutscene editors in ImGui; fades on all channels; save and load menu; fixed a memory leak in video playback.</span></li>
+    <li><time>Feb 2026</time><span>Uniform-grid broad phase for collision.</span></li>
+    <li><time>Mar 2026</time><span>Fully data-driven audio, cloud save with accounts, fog effects, and the popping fixes.</span></li>
+    <li><time>Apr 2026</time><span>Gamepad support with unit tests, warning-free build, documentation, release.</span></li>
+  </ol>
+
+  <h2>The rest of the team</h2>
+  <p>The engine was a team effort. My teammates owned these parts:</p>
+  <div class="team">
+    <div><b>Adi</b> <span>· ECS, application framework, profiler, input</span></div>
+    <div><b>Asri</b> <span>· renderer, shaders, camera, graphics pipeline</span></div>
+    <div><b>Rifqah</b> <span>· math library, serialization, product direction</span></div>
+    <div><b>Syazwani</b> <span>· level editor and ImGui integration</span></div>
+  </div>
+
+  <div class="note">
+    <p>Hollows is a DigiPen Institute of Technology Singapore school project, so the source code isn’t public. I’m happy to walk through any of the systems above in an interview.</p>
+    <p>Email <span class="addr">fauzan0410@gmail.com</span> · <a href="https://www.linkedin.com/in/fauz/">LinkedIn</a> · <a href="https://github.com/Qayzan">GitHub</a></p>
+  </div>
+</div>
+
+</body>
+</html>
